@@ -15,11 +15,24 @@ import RapportsPage from '@/pages/RapportsPage'
 import UtilisateursPage from '@/pages/UtilisateursPage'
 import AuditPage from '@/pages/AuditPage'
 
+import { useUIStore } from '@/store/uiStore'
+import { useEffect } from 'react'
+
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, refetchOnWindowFocus: false } },
 })
 
 export default function App() {
+  const darkMode = useUIStore((state) => state.darkMode)
+
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add('dark')
+    } else {
+      document.documentElement.classList.remove('dark')
+    }
+  }, [darkMode])
+
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>

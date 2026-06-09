@@ -24,9 +24,29 @@ export default function RapportsPage() {
     },
   })
 
-  const exportFile = (format: 'pdf' | 'excel') => {
-    const params = new URLSearchParams(entrepotId ? { id_entrepot: entrepotId } : {})
-    window.open(`/api/v1/reports/export/${format}/${tab}?${params.toString()}`, '_blank')
+  const exportFile = async (format: 'pdf' | 'excel') => {
+    try {
+      const params = new URLSearchParams(entrepotId ? { id_entrepot: entrepotId } : {})
+      const response = await api.get(`/reports/export/${format}/${tab}?${params.toString()}`, {
+        responseType: 'blob',
+      })
+      
+      const blob = new Blob([response.data], {
+        type: format === 'pdf' ? 'application/pdf' : 'text/csv',
+      })
+      const url = window.URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      
+      const filename = `rapport-${tab}-${new Date().toISOString().slice(0, 10)}.${format === 'pdf' ? 'pdf' : 'csv'}`
+      link.setAttribute('download', filename)
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+      window.URL.revokeObjectURL(url)
+    } catch (error) {
+      console.error('Export failed:', error)
+    }
   }
 
   const columns = data?.[0]
